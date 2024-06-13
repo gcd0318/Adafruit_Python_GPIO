@@ -71,7 +71,6 @@ def pi_revision():
             # Match a line of the form "Revision : 0002" while ignoring extra
             # info in front of the revsion (like 1000 when the Pi was over-volted).
             match = re.match('Revision\s+:\s+.*(\w{4})$', line, flags=re.IGNORECASE)
-            print(match)
             if match and match.group(1) in ['0000', '0002', '0003']:
                 # Return revision 1 if revision ends with 0000, 0002 or 0003.
                 return 1
@@ -111,7 +110,6 @@ def pi_version():
         # Couldn't find the hardware, assume it isn't a pi.
         with open('/sys/firmware/devicetree/base/model', 'r') as modelfile:
             line = modelfile.readline()
-            print(line)
             if 'Raspberry Pi' in line:
                 return 4
     return None
