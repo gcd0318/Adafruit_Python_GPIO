@@ -71,6 +71,7 @@ def pi_revision():
             # Match a line of the form "Revision : 0002" while ignoring extra
             # info in front of the revsion (like 1000 when the Pi was over-volted).
             match = re.match('Revision\s+:\s+.*(\w{4})$', line, flags=re.IGNORECASE)
+            print(match)
             if match and match.group(1) in ['0000', '0002', '0003']:
                 # Return revision 1 if revision ends with 0000, 0002 or 0003.
                 return 1
@@ -96,18 +97,26 @@ def pi_version():
     # Match a line like 'Hardware   : BCM2709'
     match = re.search('^Hardware\s+:\s+(\w+)$', cpuinfo,
                       flags=re.MULTILINE | re.IGNORECASE)
-    if not match:
-        # Couldn't find the hardware, assume it isn't a pi.
-        return None
-    if match.group(1) == 'BCM2708':
+    if match:
+        if match.group(1) == 'BCM2708':
         # Pi 1
-        return 1
-    elif match.group(1) == 'BCM2709':
+            return 1
+        elif match.group(1) == 'BCM2709':
         # Pi 2
-        return 2
-    elif match.group(1) == 'BCM2835':
+            return 2
+        elif match.group(1) == 'BCM2835':
         # Pi 3 / Pi on 4.9.x kernel
-        return 3
+            return 3
     else:
-        # Something else, not a pi.
-        return None
+        # Couldn't find the hardware, assume it isn't a pi.
+        with open('/sys/firmware/devicetree/base/model', 'r') as modelfile:
+            line = modelfile.readline()
+            print(line)
+            if 'Raspberry Pi' in line:
+                return 4
+    return None
+
+
+if ('__main__' == __name__):
+    print(platform_detect())
+
